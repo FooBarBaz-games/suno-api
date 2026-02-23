@@ -4,10 +4,9 @@ services:
   suno-api:
     build:
       context: .
-      args:
-        SUNO_COOKIE: ${SUNO_COOKIE}
     volumes:
       - ./public:/app/public
     ports:
-      - "3000:3000"
-    env_file: ".env"
+      - "3100:3000"
+    env_file: ".env.docker"
+    restart: unless-stopped

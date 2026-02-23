@@ -573,8 +573,7 @@ class SunoApi {
       generation_type: 'TEXT',
       continue_at: continue_at,
       continue_clip_id: continue_clip_id,
-      task: task,
-      token: await this.getCaptcha()
+      task: task
     };
     if (isCustom) {
       payload.tags = tags;
@@ -601,13 +600,42 @@ class SunoApi {
           2
         )
     );
-    const response = await this.client.post(
-      `${SunoApi.BASE_URL}/api/generate/v2/`,
-      payload,
-      {
-        timeout: 10000 // 10 seconds timeout
+    let response;
+    try {
+      response = await this.client.post(
+        `${SunoApi.BASE_URL}/api/generate/v2/`,
+        payload,
+        {
+          timeout: 10000 // 10 seconds timeout
+        }
+      );
+    } catch (err: any) {
+      // If Suno rejects with 422 (Token validation failed), attempt CAPTCHA solving and retry
+      if (err.response?.status === 422 && err.response?.data?.detail === 'Token validation failed.') {
+        logger.info('Generation rejected — CAPTCHA token required. Attempting CAPTCHA solve...');
+        let captchaToken = null;
+        try {
+          captchaToken = await this.getCaptcha();
+        } catch (captchaErr: any) {
+          logger.info('CAPTCHA solve failed: ' + captchaErr.message);
+        }
+        if (captchaToken) {
+          payload.token = captchaToken;
+        } else {
+          logger.info('No CAPTCHA token obtained. Retrying with token=null...');
+          payload.token = null;
+        }
+        response = await this.client.post(
+          `${SunoApi.BASE_URL}/api/generate/v2/`,
+          payload,
+          {
+            timeout: 10000
+          }
+        );
+      } else {
+        throw err;
       }
-    );
+    }
     if (response.status !== 200) {
       throw new Error('Error response:' + response.statusText);
     }
