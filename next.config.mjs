@@ -1,22 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     config.module.rules.push({
       test: /\.(ttf|html)$/i,
       type: 'asset/resource'
     });
-    if (isServer) {
-      config.node = {
-        ...config.node,
-        __filename: true,
-        __dirname: true,
-      };
-    }
     return config;
   },
   experimental: {
     serverMinification: false, // the server minification unfortunately breaks the selector class names
+    serverComponentsExternalPackages: [
+      'pino',
+      'pino-pretty',
+      'rebrowser-playwright-core',
+      '@playwright/browser-chromium',
+      'electron',
+      '@2captcha/captcha-solver',
+      'ghost-cursor-playwright',
+    ],
   },
-};  
+};
 
 export default nextConfig;
