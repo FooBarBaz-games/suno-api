@@ -308,6 +308,14 @@ class SunoApi {
     if (!await this.captchaRequired())
       return null;
 
+    // In serverless environments (e.g. Vercel), Playwright/Chromium is not available.
+    // If no 2Captcha key is configured, skip browser-based CAPTCHA solving and
+    // attempt the request without a token — Suno may still accept it.
+    if (!process.env.TWOCAPTCHA_KEY) {
+      logger.info('CAPTCHA required but no TWOCAPTCHA_KEY configured. Skipping browser-based solving.');
+      return null;
+    }
+
     logger.info('CAPTCHA required. Launching browser...')
     const browser = await this.launchBrowser();
     const page = await browser.newPage();
