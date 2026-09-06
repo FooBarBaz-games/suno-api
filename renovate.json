@@ -1,0 +1,5 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "enabled": false,
+  "description": "Renovate is deliberately DISABLED on this repo. FooBarBaz-games/suno-api is a GitHub fork of gcui-art/suno-api, a third-party project this org does not maintain; the fork has not been pushed since 2026-02-23 and nothing in the FooBarBaz stack builds or deploys from it. It also carries two conflicting lockfiles on the default branch (package-lock.json and pnpm-lock.yaml), so Renovate would have to guess a package manager and would churn whichever one it picked. To re-enable: resolve the lockfile conflict first, then delete this file or set enabled to true and derive a real config from the surviving manifest."
+}
